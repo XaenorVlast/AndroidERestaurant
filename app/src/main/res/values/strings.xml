@@ -1,0 +1,28 @@
+
+<resources>
+<!-- Autres chaînes de ressources -->
+<string name="app_name">AndroidERestaurant</string>
+<!-- Chaînes pour les catégories de plats -->
+<string name="category_entrees">Entrées</string>
+<string name="category_main_courses">Plats Principaux</string>
+<string name="category_desserts">Desserts</string>
+
+<!-- Listes de plats pour chaque catégorie -->
+<string-array name="entrees">
+    <item>Salade César</item>
+    <item>Soupe à loignon</item>
+    <item>Bruschetta</item>
+</string-array>
+
+<string-array name="plats">
+    <item>Steak Frites</item>
+    <item>Lasagnes à la Bolognaise</item>
+    <item>Curry de Poulet</item>
+</string-array>
+
+<string-array name="desserts">
+    <item>Tarte Tatin</item>
+    <item>Mousse au Chocolat</item>
+    <item>Crème Brûlée</item>
+</string-array>
+</resources>
