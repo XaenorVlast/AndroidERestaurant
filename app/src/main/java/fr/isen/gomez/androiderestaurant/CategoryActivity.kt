@@ -17,28 +17,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
 import fr.isen.gomez.androiderestaurant.ui.theme.AndroidERestaurantTheme
-
+import org.json.JSONObject
 
 
 class CategoryActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val categoryName = intent.getStringExtra("categoryName") ?: "Catégorie"
-        val menuItems = mutableStateOf<List<MenuItem>>(listOf())
-
-        fetchMenuItems(categoryName) {
-            menuItems.value = it
-        }
 
         setContent {
+            val menuItems = remember { mutableStateOf<List<MenuItem>>(listOf()) }
+
             AndroidERestaurantTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
+                    // Remplacez MenuScreen par le composant d'affichage de votre choix
                     MenuScreen(categoryName = categoryName, items = menuItems.value)
                 }
+            }
+
+            fetchMenuItems(categoryName) { items ->
+                menuItems.value = items
             }
         }
     }
@@ -46,51 +49,35 @@ class CategoryActivity : ComponentActivity() {
     private fun fetchMenuItems(categoryName: String, onResult: (List<MenuItem>) -> Unit) {
         val queue = Volley.newRequestQueue(this)
         val url = "http://test.api.catering.bluecodegames.com/menu"
+        val params = JSONObject()
+        params.put("id_shop", "1")
 
-        val stringRequest = object: StringRequest(Request.Method.POST, url,
-            Response.Listener<String> { response ->
-                val menuResponse = Gson().fromJson(response, MenuResponse::class.java)
-                val filteredItems = menuResponse.data.firstOrNull { it.name == categoryName }?.items ?: emptyList()
-                onResult(filteredItems)
-            },
-            Response.ErrorListener { error ->
-                // Log de base avec le message d'erreur
-                Log.e("CategoryActivity", "Erreur de la requête Volley: ${error.message}")
-
-                // Détails supplémentaires sur l'erreur
-                val statusCode = error.networkResponse?.statusCode ?: "Code d'état non disponible"
-                val errorData = String(error.networkResponse?.data ?: "Données d'erreur non disponibles".toByteArray())
-
-                // Log des détails supplémentaires
-                Log.e("CategoryActivity", "Code d'état HTTP: $statusCode")
-                Log.e("CategoryActivity", "Données d'erreur: $errorData")
-
-                // Affichage d'un Toast plus détaillé
-                runOnUiThread {
-                    Toast.makeText(this@CategoryActivity, "Erreur lors du chargement des données: $statusCode - Voir log pour plus de détails", Toast.LENGTH_LONG).show()
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.POST, url, params,
+            { response ->
+                Log.d("CategoryActivity", "Réponse de l'API: $response") // Ajout du log ici
+                try {
+                    val gson = Gson()
+                    val menuResponse = gson.fromJson(response.toString(), MenuResponse::class.java)
+                    val filteredItems =
+                        menuResponse.data.firstOrNull { it.name_fr == categoryName }?.items
+                            ?: emptyList()
+                    onResult(filteredItems)
+                } catch (e: Exception) {
+                    Log.e("CategoryActivity", "Parsing error", e)
                 }
+            },
+            { error ->
+                error.printStackTrace()
+                Log.e("CategoryActivity", "Volley error: ${error.message}")
+                runOnUiThread {
+                    Toast.makeText(this, "Failed to load data: ${error.message}", Toast.LENGTH_LONG)
+                        .show()
+                }
+            })
 
-                    if (error.networkResponse?.statusCode == 400) {
-                        Log.e("CategoryActivity", "Requête Incorrecte (Erreur 400). Message: ${error.message}")
-                        runOnUiThread {
-                            Toast.makeText(this@CategoryActivity, "Requête Incorrecte (Erreur 400)", Toast.LENGTH_LONG).show()
-                        }
-                    } else {
-                        Log.e("CategoryActivity", "Erreur lors du chargement des données: ${error.message}")
-                        runOnUiThread {
-                            Toast.makeText(this@CategoryActivity, "Erreur lors du chargement des données", Toast.LENGTH_LONG).show()
-                        }
-                    }
-
-
-            }
-
-        ) {
-            override fun getParams(): Map<String, String> = hashMapOf("id_shop" to "1")
-        }
-
-        queue.add(stringRequest)
+        queue.add(jsonObjectRequest)
     }
+
 }
 
 @Composable
@@ -112,7 +99,7 @@ fun MenuScreen(categoryName: String, items: List<MenuItem>) {
 @Composable
 fun MenuItemComposable(item: MenuItem) {
     Text(
-        text = item.name,
+        text = item.name_fr,
         modifier = Modifier
             .padding(16.dp)
 
@@ -121,7 +108,41 @@ fun MenuItemComposable(item: MenuItem) {
 }
 
 // Classes pour la réponse et les données
-data class MenuResponse(val data: List<Category>)
-data class Category(val name: String, val items: List<MenuItem>)
-data class MenuItem(val name: String, // et autres propriétés que vous souhaitez utiliser
+data class MenuResponse(
+    val data: List<Category> // Assurez-vous que cela correspond au champ "data" du JSON
 )
+
+data class Category(
+    val name_fr: String, // Nom français de la catégorie
+    val items: List<MenuItem> // Liste des items dans cette catégorie
+)
+
+data class MenuItem(
+    val id: String, // Identifiant de l'item
+    val name_fr: String, // Nom français de l'item
+    val id_category: String, // Identifiant de la catégorie de l'item
+    val categ_name_fr: String, // Nom français de la catégorie de l'item
+    val images: List<String>, // URLs des images de l'item
+    val ingredients: List<Ingredient>, // Liste des ingrédients de l'item
+    val prices: List<Price> // Liste des prix de l'item
+)
+
+data class Ingredient(
+    val id: String, // Identifiant de l'ingrédient
+    val id_shop: String, // Identifiant du magasin/shop
+    val name_fr: String, // Nom français de l'ingrédient
+    val create_date: String, // Date de création de l'ingrédient
+    val update_date: String, // Date de mise à jour de l'ingrédient
+    val id_pizza: String? // Identifiant de la pizza (si applicable, peut ne pas être présent pour tous les ingrédients, donc nullable)
+)
+
+data class Price(
+    val id: String, // Identifiant du prix
+    val id_pizza: String, // Identifiant de la pizza
+    val id_size: String, // Identifiant de la taille
+    val price: String, // Valeur du prix
+    val create_date: String, // Date de création du prix
+    val update_date: String, // Date de mise à jour du prix
+    val size: String // Taille correspondante au prix
+)
+
