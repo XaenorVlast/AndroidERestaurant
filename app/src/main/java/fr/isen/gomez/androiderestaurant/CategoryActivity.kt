@@ -5,24 +5,29 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
 import fr.isen.gomez.androiderestaurant.ui.theme.AndroidERestaurantTheme
 import org.json.JSONObject
+import coil.compose.rememberImagePainter
+
 
 
 class CategoryActivity : ComponentActivity() {
@@ -98,14 +103,51 @@ fun MenuScreen(categoryName: String, items: List<MenuItem>) {
 
 @Composable
 fun MenuItemComposable(item: MenuItem) {
-    Text(
-        text = item.name_fr,
-        modifier = Modifier
-            .padding(16.dp)
-
-    )
-    // Vous pouvez ajouter plus d'informations sur le plat ici
+    Column(modifier = Modifier.padding(16.dp)) {
+        if (item.images.isNotEmpty()) {
+            ImageFromUrls(urls = item
+                .images)
+        } else {
+            Log.d("MenuItemComposable", "Aucune URL d'image pour l'item: ${item.name_fr}")
+// Vous pouvez mettre une image par défaut ici
+        }
+        Text(text = item.name_fr)
+// Ajoutez d'autres détails sur l'item ici.
+    }
 }
+@Composable
+fun ImageFromUrls(urls: List<String>) {
+    var currentUrlIndex by remember { mutableStateOf(0) }
+
+    val painter = rememberImagePainter(
+        data = urls.getOrNull(currentUrlIndex),
+        builder = {
+            crossfade(true)
+            error(android.R.drawable.ic_dialog_alert) // Utilisez une icône d'erreur par défaut d'Android
+            listener(
+                onError = { _, throwable ->
+                    Log.d("ImageFromUrls", "Erreur de chargement pour l'URL : ${urls.getOrNull(currentUrlIndex)} avec l'erreur: ${throwable.message}")
+                    if (currentUrlIndex < urls.size - 1) {
+                        // Essayez la prochaine URL si celle actuelle échoue
+                        currentUrlIndex++
+                    }
+                }
+            )
+        }
+    )
+
+    Image(
+        painter = painter,
+        contentDescription = null, // Fournissez une description appropriée pour l'accessibilité.
+        modifier = Modifier
+            .size(150.dp) // Définissez la taille de l'image. Ajustez selon vos besoins.
+            .aspectRatio(1f),
+        contentScale = ContentScale.Crop // Gère comment l'image doit être redimensionnée ou déplacée pour remplir les dimensions données.
+    )
+}
+
+
+
 
 // Classes pour la réponse et les données
 data class MenuResponse(
