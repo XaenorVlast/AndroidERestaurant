@@ -7,5 +7,12 @@
 
     <style name="MyActionBar" parent="@android:style/Widget.Material.Light.ActionBar.Solid">
         <item name="android:background">@color/orange</item>
+        <!-- Définir la couleur du titre de l'Action Bar en blanc -->
+        <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
+    </style>
+
+    <!-- Style pour le texte du titre de l'Action Bar -->
+    <style name="MyActionBarTitleText" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 </resources>
