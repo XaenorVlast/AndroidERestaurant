@@ -7,11 +7,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -93,7 +98,10 @@ fun MenuScreen(categoryName: String, items: List<MenuItem>) {
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(16.dp)
         )
-        LazyColumn {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2), // Crée 2 colonnes
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp)
+        ) {
             items(items) { item ->
                 MenuItemComposable(item)
             }
@@ -103,18 +111,18 @@ fun MenuScreen(categoryName: String, items: List<MenuItem>) {
 
 @Composable
 fun MenuItemComposable(item: MenuItem) {
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(8.dp)) {
         if (item.images.isNotEmpty()) {
-            ImageFromUrls(urls = item
-                .images)
+            ImageFromUrls(urls = item.images)
         } else {
             Log.d("MenuItemComposable", "Aucune URL d'image pour l'item: ${item.name_fr}")
-// Vous pouvez mettre une image par défaut ici
+            // Vous pouvez mettre une image par défaut ici
         }
-        Text(text = item.name_fr)
-// Ajoutez d'autres détails sur l'item ici.
+        Text(text = item.name_fr, modifier = Modifier.padding(top = 8.dp))
+        // Ajoutez d'autres détails sur l'item ici.
     }
 }
+
 @Composable
 fun ImageFromUrls(urls: List<String>) {
     var currentUrlIndex by remember { mutableStateOf(0) }
@@ -138,10 +146,10 @@ fun ImageFromUrls(urls: List<String>) {
 
     Image(
         painter = painter,
-        contentDescription = null, // Fournissez une description appropriée pour l'accessibilité.
+        contentDescription = null,
         modifier = Modifier
-            .size(150.dp) // Définissez la taille de l'image. Ajustez selon vos besoins.
-            .aspectRatio(1f),
+            .aspectRatio(1f) // Assurez-vous que l'image est carrée
+            .fillMaxWidth(), // Remplissez la largeur maximale disponible
         contentScale = ContentScale.Crop // Gère comment l'image doit être redimensionnée ou déplacée pour remplir les dimensions données.
     )
 }

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.AndroidERestaurant" parent="android:Theme.Material.Light">
+        <!-- Autres attributs de style -->
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+    </style>
 
-    <style name="Theme.AndroidERestaurant" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="MyActionBar" parent="@android:style/Widget.Material.Light.ActionBar.Solid">
+        <item name="android:background">@color/orange</item>
+    </style>
 </resources>
