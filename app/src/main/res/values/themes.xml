@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <style name="Theme.AndroidERestaurant" parent="android:Theme.Material.Light">
         <!-- Autres attributs de style -->
         <item name="android:actionBarStyle">@style/MyActionBar</item>
+        <item
+
+            android:icon="@drawable/ic_cart"
+        android:title="@string/cart"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom" name="android:actionBarItemBackground" />
     </style>
 
     <style name="MyActionBar" parent="@android:style/Widget.Material.Light.ActionBar.Solid">
@@ -15,4 +22,5 @@
     <style name="MyActionBarTitleText" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title">
         <item name="android:textColor">@android:color/white</item>
     </style>
+
 </resources>

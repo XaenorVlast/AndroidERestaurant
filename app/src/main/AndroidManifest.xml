@@ -25,9 +25,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CategoryActivity"
-            />
-
+        <activity android:name=".CategoryActivity"/>
+        <activity android:name=".DishDetailActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight"/>
     </application>
 
 </manifest>

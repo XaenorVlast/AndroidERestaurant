@@ -2,5 +2,5 @@
 <resources>
 <!-- Autres chaînes de ressources -->
 <string name="app_name">AndroidERestaurant</string>
-
+    <string name="cart">cart</string>
 </resources>

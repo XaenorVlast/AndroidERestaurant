@@ -70,5 +70,7 @@ dependencies {
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.google.code.gson:gson:2.8.9")
     implementation ("io.coil-kt:coil-compose:1.4.0")
+    implementation ("com.google.accompanist:accompanist-pager:0.33.1-alpha")
+    implementation ("com.google.android.material:material:1.12.0-beta01")
 
 }
